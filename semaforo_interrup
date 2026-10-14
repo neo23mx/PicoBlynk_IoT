@@ -1,0 +1,69 @@
+from machine import Pin
+import utime
+
+rojo_1 = Pin(10, Pin.OUT)
+amarillo_1 = Pin(11, Pin.OUT)
+verde_1 = Pin(12, Pin.OUT)
+
+rojo_2 = Pin(21, Pin.OUT)
+amarillo_2 = Pin(20, Pin.OUT)
+verde_2 = Pin(19, Pin.OUT)
+
+led_peaton = Pin(13, Pin.OUT)
+boton_peaton = Pin(8, Pin.IN, Pin.PULL_UP)
+
+solicitud_peaton = False
+
+def apagar_todos():
+    rojo_1.value(0)
+    amarillo_1.value(0)
+    verde_1.value(0)
+    rojo_2.value(0)
+    amarillo_2.value(0)
+    verde_2.value(0)
+    led_peaton.value(0)
+
+# Función de interrupción (rutina de servicio IRQ)
+def presiono_boton(pin):
+    global solicitud_peaton
+    solicitud_peaton = True
+
+# Configuramos la interrupción: se activa cuando el pin detecta un flanco de bajada (FALLING) de 3.3V a GND
+boton_peaton.irq(trigger=Pin.IRQ_FALLING, handler=presiono_boton)
+
+while True:
+    apagar_todos()
+    verde_1.value(1)
+    rojo_2.value(1)
+    utime.sleep(5)
+    
+    apagar_todos()
+    amarillo_1.value(1)
+    rojo_2.value(1)
+    utime.sleep(2)
+    
+    if solicitud_peaton:
+        apagar_todos()
+        rojo_1.value(1)
+        rojo_2.value(1)
+        led_peaton.value(1)
+        utime.sleep(5)
+        solicitud_peaton = False
+    
+    apagar_todos()
+    rojo_1.value(1)
+    verde_2.value(1)
+    utime.sleep(5)
+    
+    apagar_todos()
+    rojo_1.value(1)
+    amarillo_2.value(1)
+    utime.sleep(2)
+    
+    if solicitud_peaton:
+        apagar_todos()
+        rojo_1.value(1)
+        rojo_2.value(1)
+        led_peaton.value(1)
+        utime.sleep(5)
+        solicitud_peaton = False
